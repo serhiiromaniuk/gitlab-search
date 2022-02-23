@@ -37,9 +37,8 @@ optional arguments:
   -h, --help           show this help message and exit
   --api-debug          Show all API calls
   --internal-debug     Show all iterated items and other dubugv info
-  --filename-is-regex  FILE_FILTER become Python regular expressions, so it can be '.*\.cpp' to search for
+  --filename-is-regex  FILE_FILTER become Python regular expressions, so it can be '.*\.cpp' to search for all files with extension cpp
   --output-match"      Output matching line
- all files with extension cpp
 ```
 
 ### Example
