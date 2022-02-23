@@ -22,7 +22,7 @@ sudo apt install python3-gitlab
 ## Usage
 
 ```
-usage: gitlab-search.py [-h] [--api-debug] [--internal-debug] [--filename-is-regex]
+usage: gitlab-search.py [-h] [--api-debug] [--internal-debug] [--filename-is-regex] [--output-match]
                         GITLAB_SERVER GITLAB_USER_TOKEN FILE_FILTER TEXT_TO_SEARCH [GROUP] [PROJECT_FILTER]
 
 positional arguments:
@@ -37,7 +37,9 @@ optional arguments:
   -h, --help           show this help message and exit
   --api-debug          Show all API calls
   --internal-debug     Show all iterated items and other dubugv info
-  --filename-is-regex  FILE_FILTER become Python regular expressions, so it can be '.*\.cpp' to search for all files with extension cpp
+  --filename-is-regex  FILE_FILTER become Python regular expressions, so it can be '.*\.cpp' to search for
+  --output-match"      Output matching line
+ all files with extension cpp
 ```
 
 ### Example
