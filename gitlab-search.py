@@ -8,7 +8,11 @@ def eprint(*args, **kwargs):
     # https://stackoverflow.com/a/14981125
     print(*args, file=sys.stderr, **kwargs)
 
-def search(gitlab_server, token, file_filter, text, group=None, project_filter=None, api_debug=False, internal_debug=False, filename_regex=False, output_match=False):
+def search(
+        gitlab_server, token, file_filter, text, group=None, project_filter=None,
+        api_debug=False, internal_debug=False, filename_regex=False,
+        output_match=False, output_path=False, output_ssh_url=False
+    ):
     return_value = []
     
     gl = gitlab.Gitlab(gitlab_server, private_token=token)
@@ -52,12 +56,12 @@ def search(gitlab_server, token, file_filter, text, group=None, project_filter=N
 
         for file in files:
             if internal_debug:
-                fpath = file.get('path',None) if file.get('path',None)!=None else file.get('name',None)
-                eprint("  File: ",fpath)
+                fpath = file.get('path',None) if file.get('path',None) != None else file.get('name',None)
+                eprint("  File: ", fpath)
 
             if filename_regex:
                 matches          = re.findall(file_filter, file['name'])
-                filename_matches = len(matches)>0
+                filename_matches = len(matches) > 0
             else:
                 filename_matches = file_filter == file['name']
             
@@ -66,11 +70,14 @@ def search(gitlab_server, token, file_filter, text, group=None, project_filter=N
 
                 for line in file_content:
                     if text in line:
-                        return_value.append({
+                        value = {
                             "project": project.name,
                             "file": file['path']
-                        })
-                        if output_match: return_value.append({ "match": line })
+                        }
+                        if output_match: value["match"] = line
+                        if output_path: value["path"] = project.namespace["full_path    "]
+                        if output_ssh_url: value["ssh_url"] = project.ssh_url_to_repo
+                        return_value.append(value)
     return return_value
 
 if __name__ == '__main__':
@@ -79,6 +86,8 @@ if __name__ == '__main__':
     parser.add_argument("--internal-debug",    action="store_true", help="Show all iterated items and other dubugv info")
     parser.add_argument("--filename-is-regex", action="store_true", help="FILE_FILTER become Python regular expressions, so it can be '.*\.cpp' to search for all files with extension cpp")
     parser.add_argument("--output-match",      action="store_true", help="Output matching line")
+    parser.add_argument("--output-path",       action="store_true", help="Output full project path")
+    parser.add_argument("--output-ssh-url",    action="store_true", help="Output SSH repo url for clone")
     parser.add_argument("GITLAB_SERVER",       nargs=1,             help="URL of Gitlab server, eg. https://gitlab.com/")
     parser.add_argument("GITLAB_USER_TOKEN",   nargs=1,             help="Access token with api_read access")
     parser.add_argument("FILE_FILTER",         nargs=1,             help="Filter for filenames to search in")
@@ -91,6 +100,8 @@ if __name__ == '__main__':
     internal_debug_arg = args.internal_debug
     regex_arg          = args.filename_is_regex
     output_match_arg   = args.output_match
+    output_path_arg    = args.output_path
+    output_ssh_url_arg = args.output_ssh_url
     gitlab_server_arg  = args.GITLAB_SERVER[0]
     token_arg          = args.GITLAB_USER_TOKEN[0]
     file_filter_arg    = args.FILE_FILTER[0]
@@ -98,4 +109,10 @@ if __name__ == '__main__':
     group_arg          = None if args.GROUP          == None else args.GROUP
     project_filter_arg = None if args.PROJECT_FILTER == None else args.PROJECT_FILTER
 
-    print(search(gitlab_server_arg, token_arg, file_filter_arg, text_arg, group_arg, project_filter_arg, api_debug_arg, internal_debug_arg, regex_arg, output_match_arg))
+    print(
+        search(
+            gitlab_server_arg, token_arg, file_filter_arg, text_arg, group_arg,
+            project_filter_arg, api_debug_arg, internal_debug_arg, regex_arg,
+            output_match_arg, output_path_arg, output_ssh_url_arg
+        )
+    )
